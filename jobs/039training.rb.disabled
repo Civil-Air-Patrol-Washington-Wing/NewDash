@@ -1,0 +1,36 @@
+require 'mysql2'
+require 'date'
+
+SCHEDULER.every '15m', :first_in => 0 do |job|
+  # Calculate the date 90 days ago from the current date
+  end_date = Date.today
+  start_date = end_date - 90
+
+  # Format the dates as 'YYYY-MM-DD' strings
+  end_date_str = end_date.strftime('%Y-%m-%d')
+  start_date_str = start_date.strftime('%Y-%m-%d')
+
+  # MySQL connection
+  db = Mysql2::Client.new(
+    :host => "10.1.10.96",
+    :username => "mysqlreader",
+    :password => "TangoDelta119!",
+    :port => 3306,
+    :database => "CAPWATCH"
+  )
+
+  # MySQL query with the date range
+  sql = "SELECT * FROM training_039 WHERE Completed >= '#{start_date_str}' AND Completed <= '#{end_date_str}'"
+
+  # Execute the query
+  results = db.query(sql)
+
+  # Sending the results to a widget, assuming the widget can handle the data format
+  training_data = results.map do |row|
+    row
+  end
+
+  # Update the widget (modify this part based on your widget setup)
+  send_event('training_info', { items: training_data })
+
+end
